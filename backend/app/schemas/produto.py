@@ -28,19 +28,21 @@ class AvaliacaoResumo(BaseModel):
     avaliacao: int
     titulo_comentario: Optional[str] = None
     comentario: Optional[str] = None
-
     model_config = {"from_attributes": True}
 
-
-class ProdutoDetalhe(ProdutoBase):
+class ProdutoDetalhe(BaseModel):
     id_produto: str
-    total_vendas: int
-    receita_total: float
-    media_avaliacoes: Optional[float] = None
+    nome_produto: str
+    categoria_produto: str
+    peso_produto_gramas: Optional[float] = 0.0
+    comprimento_centimetros: Optional[float] = 0.0
+    altura_centimetros: Optional[float] = 0.0
+    largura_centimetros: Optional[float] = 0.0
+    total_vendas: int = 0
+    receita_total: float = 0.0
+    media_avaliacoes: float = 0.0
     avaliacoes: list[AvaliacaoResumo] = []
-
     model_config = {"from_attributes": True}
-
 
 class ProdutoResponse(ProdutoBase):
     id_produto: str

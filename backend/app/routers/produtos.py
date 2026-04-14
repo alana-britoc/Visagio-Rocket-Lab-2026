@@ -1,8 +1,9 @@
 import uuid
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, desc, asc
+from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
+from functools import lru_cache
 
 from app.database import get_db
 from app.models.produto import Produto
@@ -16,6 +17,7 @@ from app.schemas.produto import (
     ProdutoDetalhe,
     ProdutosPaginados,
 )
+from app.services.produto_service import ProdutoService
 
 router = APIRouter(prefix="/produtos", tags=["Produtos"])
 
@@ -40,8 +42,12 @@ def listar_produtos(
 
     if ordem == "vendas_desc":
         query = query.outerjoin(ItemPedido).group_by(Produto.id_produto).order_by(desc(func.count(ItemPedido.id_item)))
+    elif ordem == "vendas_asc":
+        query = query.outerjoin(ItemPedido).group_by(Produto.id_produto).order_by(func.count(ItemPedido.id_item).asc())
     elif ordem == "rating_desc":
         query = query.outerjoin(ItemPedido).outerjoin(AvaliacaoPedido, ItemPedido.id_pedido == AvaliacaoPedido.id_pedido).group_by(Produto.id_produto).order_by(desc(func.avg(AvaliacaoPedido.avaliacao)))
+    elif ordem == "rating_asc":
+        query = query.outerjoin(ItemPedido).outerjoin(AvaliacaoPedido, ItemPedido.id_pedido == AvaliacaoPedido.id_pedido).group_by(Produto.id_produto).order_by(func.avg(AvaliacaoPedido.avaliacao).asc())
     else:
         query = query.order_by(Produto.nome_produto.asc())
 
@@ -57,68 +63,28 @@ def listar_produtos(
     )
 
 @router.get("/categorias", response_model=list[str])
+@lru_cache(maxsize=1)
 def listar_categorias(db: Session = Depends(get_db)):
-    resultado = db.query(Produto.categoria_produto).distinct().order_by(Produto.categoria_produto).all()
+    resultado = db.query(Produto.categoria_produto).distinct().all()
     return [r[0] for r in resultado]
 
 @router.get("/{id_produto}/performance")
-def obter_performance_produto(id_produto: str, db: Session = Depends(get_db)):
-    performance = db.query(
-        func.date(Pedido.data_pedido).label("data"),
-        func.sum(ItemPedido.preco_BRL).label("total")
-    ).join(
-        ItemPedido, Pedido.id_pedido == ItemPedido.id_pedido
-    ).filter(
-        ItemPedido.id_produto == id_produto
-    ).group_by(
-        func.date(Pedido.data_pedido)
-    ).order_by(
-        func.date(Pedido.data_pedido)
-    ).limit(7).all()
-
-    if not performance:
-        return []
-
-    return [{"name": p.data.strftime("%d/%m"), "total": float(p.total)} for p in performance]
+def get_performance(id_produto: str, db: Session = Depends(get_db)):
+    svc = ProdutoService(db)
+    data = svc.get_performance(id_produto)
+    if data is None:
+        raise HTTPException(status_code=404, detail="Produto não encontrado")
+    return data
 
 @router.get("/{id_produto}", response_model=ProdutoDetalhe)
 def detalhar_produto(id_produto: str, db: Session = Depends(get_db)):
-    produto = db.query(Produto).filter(Produto.id_produto == id_produto).first()
-    if not produto:
+    service = ProdutoService(db)
+    produto_data = service.get_detalhes_completo(id_produto)
+
+    if not produto_data:
         raise HTTPException(status_code=404, detail="Produto não encontrado")
 
-    vendas = db.query(
-        func.count(ItemPedido.id_item).label("total"),
-        func.sum(ItemPedido.preco_BRL).label("receita")
-    ).filter(ItemPedido.id_produto == id_produto).first()
-
-    media = db.query(
-        func.avg(AvaliacaoPedido.avaliacao)
-    ).join(
-        ItemPedido, AvaliacaoPedido.id_pedido == ItemPedido.id_pedido
-    ).filter(
-        ItemPedido.id_produto == id_produto
-    ).scalar()
-
-    avaliacoes = db.query(AvaliacaoPedido).join(
-        ItemPedido, AvaliacaoPedido.id_pedido == ItemPedido.id_pedido
-    ).filter(
-        ItemPedido.id_produto == id_produto
-    ).limit(20).all()
-
-    return ProdutoDetalhe(
-        id_produto=produto.id_produto,
-        nome_produto=produto.nome_produto,
-        categoria_produto=produto.categoria_produto,
-        peso_produto_gramas=produto.peso_produto_gramas,
-        comprimento_centimetros=produto.comprimento_centimetros,
-        altura_centimetros=produto.altura_centimetros,
-        largura_centimetros=produto.largura_centimetros,
-        total_vendas=vendas.total or 0,
-        receita_total=round(vendas.receita or 0, 2),
-        media_avaliacoes=round(media, 2) if media else None,
-        avaliacoes=avaliacoes,
-    )
+    return produto_data
 
 @router.post("/", response_model=ProdutoResponse, status_code=201)
 def criar_produto(dados: ProdutoCreate, db: Session = Depends(get_db)):
