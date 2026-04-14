@@ -3,27 +3,24 @@ import { Package, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StarRating } from "./StarRating";
-import type { Product } from "@/hooks/useProdutos";
-import { categoriaImagens } from "@/data/categoriaImagens";
-
-interface ProductStats {
-  avg_rating: number | null;
-  review_count: number;
-  total_sales: number;
-  total_revenue: number;
-}
-
+import getCategoryData from '@/data/categoriaImagens';
 interface ProductCardProps {
-  product: Product;
-  stats?: ProductStats;
+  product: {
+    id_produto: string;
+    nome_produto: string;
+    categoria_produto: string;
+  };
+  stats?: {
+    avg_rating: number | null;
+    review_count: number;
+    total_sales: number;
+    total_revenue: number;
+  };
 }
 
 export function ProductCard({ product, stats }: ProductCardProps) {
   const navigate = useNavigate();
-
-  const imageUrl = product.categoria_produto
-    ? categoriaImagens[product.categoria_produto as keyof typeof categoriaImagens]
-    : null;
+  const categoryData = getCategoryData(product.categoria_produto);
 
   return (
     <Card
@@ -31,10 +28,10 @@ export function ProductCard({ product, stats }: ProductCardProps) {
       onClick={() => navigate(`/produtos/${product.id_produto}`)}
     >
       <div className="aspect-4/3 bg-secondary flex items-center justify-center overflow-hidden">
-        {imageUrl ? (
+        {categoryData?.image ? (
           <img
-            src={imageUrl}
-            alt={product.nome_produto}
+            src={categoryData.image}
+            alt={categoryData.label}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
             loading="lazy"
           />
@@ -44,12 +41,17 @@ export function ProductCard({ product, stats }: ProductCardProps) {
       </div>
       <CardContent className="p-4 space-y-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-foreground line-clamp-1">{product.nome_produto}</h3>
+          <h3 className="font-semibold text-foreground line-clamp-1">
+            {product.nome_produto}
+          </h3>
         </div>
 
-        {product.categoria_produto && (
-          <Badge variant="outline" className="text-[10px] uppercase tracking-wider border-green-500/30 text-green-600 bg-orange-500/5">
-            {product.categoria_produto.replace(/_/g, " ")}
+        {categoryData?.label && (
+          <Badge
+            variant="outline"
+            className="text-[10px] uppercase tracking-wider border-orange-500/30 text-orange-600 bg-orange-500/5"
+          >
+            {categoryData.label}
           </Badge>
         )}
 
@@ -60,10 +62,14 @@ export function ProductCard({ product, stats }: ProductCardProps) {
                 {stats.avg_rating !== null ? (
                   <>
                     <StarRating rating={stats.avg_rating} size={13} />
-                    <span className="text-[11px] text-zinc-500">({stats.review_count})</span>
+                    <span className="text-[11px] text-zinc-500">
+                      ({stats.review_count})
+                    </span>
                   </>
                 ) : (
-                  <span className="text-[11px] text-zinc-500 uppercase tracking-tighter">Sem avaliações</span>
+                  <span className="text-[11px] text-zinc-500 uppercase tracking-tighter">
+                    Sem avaliações
+                  </span>
                 )}
               </div>
               {stats.total_sales > 0 && (

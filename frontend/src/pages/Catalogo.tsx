@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Search, Plus, ArrowUpDown, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -7,20 +7,32 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ProductCard } from '@/components/ProductCard'
 import { ProductForm } from '@/components/ProductForm'
 import { useProductsWithStats, useCategories, useCreateProduct } from '@/hooks/useProdutos'
+import { getCategoryData } from '@/data/categoriaImagens'
 
 export default function Catalogo() {
-  const [busca, setBusca] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [categoria, setCategoria] = useState('all')
   const [ordenacao, setOrdenacao] = useState('vendas_desc')
   const [pagina, setPagina] = useState(1)
   const [formOpen, setFormOpen] = useState(false)
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+      setPagina(1)
+    }, 500)
+
+    return () => clearTimeout(handler)
+  }, [searchTerm])
+
   const { products, stats, totalPaginas, totalItens, isLoading } = useProductsWithStats(
-    busca,
+    debouncedSearch,
     categoria === 'all' ? '' : categoria,
     pagina,
     ordenacao
   )
+
   const { data: categorias } = useCategories()
   const createProduct = useCreateProduct()
 
@@ -39,8 +51,8 @@ export default function Catalogo() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
                 <Input
                   placeholder="Pesquisar produtos..."
-                  value={busca}
-                  onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-12 bg-[#1a1a1a] border-none rounded-full h-12 text-zinc-300 outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50 focus-visible:ring-offset-0 transition-all"
                 />
               </div>
@@ -51,12 +63,28 @@ export default function Catalogo() {
                     <SelectValue placeholder="Categoria" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1a1a1a] border-white/10 rounded-2xl shadow-2xl p-1 outline-none">
-                    <SelectItem value="all" className="rounded-xl focus:bg-emerald-500/10 focus:text-emerald-400 cursor-pointer outline-none">Todas as Categorias</SelectItem>
-                    {categorias?.filter((c: string) => c && c.trim() !== "").map((cat: string) => (
-                      <SelectItem key={cat} value={cat} className="rounded-xl focus:bg-emerald-500/10 focus:text-emerald-400 cursor-pointer outline-none">
-                        {cat.replace(/_/g, ' ')}
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="all" className="rounded-xl focus:bg-emerald-500/10 focus:text-emerald-400 cursor-pointer outline-none">
+                      Todas as Categorias
+                    </SelectItem>
+                    {Array.from(new Set(
+                      (categorias ?? [])
+                        .filter((c) => c && c.trim() !== "")
+                        .map((cat) => getCategoryData(cat).label)
+                    )).map((labelBonito) => {
+                      const originalKey = (categorias ?? []).find(
+                        (c) => getCategoryData(c).label === labelBonito
+                      ) ?? ""
+
+                      return (
+                        <SelectItem
+                          key={labelBonito}
+                          value={originalKey}
+                          className="rounded-xl focus:bg-emerald-500/10 focus:text-emerald-400 cursor-pointer outline-none"
+                        >
+                          {labelBonito}
+                        </SelectItem>
+                      )
+                    })}
                   </SelectContent>
                 </Select>
 
@@ -87,7 +115,7 @@ export default function Catalogo() {
 
         <div className="bg-[#121212] border border-white/5 rounded-4xl p-8 flex flex-col gap-8 min-h-150">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,280px))] gap-6 justify-center w-full">
               {Array.from({ length: 10 }, (_, i) => (
                 <Skeleton key={i} className="h-80 w-full rounded-3xl bg-zinc-800/50" />
               ))}
@@ -97,7 +125,7 @@ export default function Catalogo() {
               Nenhum produto encontrado.
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(220px,280px))] gap-6 justify-center w-full">
               {products.map((p: any) => (
                 <ProductCard key={p.id_produto} product={p} stats={stats[p.id_produto]} />
               ))}

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { X, Package, Tag, Weight, Ruler, ChevronDown, Loader2, Check, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { useCategories } from "@/hooks/useProdutos";
 import type { ProdutoCreate } from "@/types/produto";
 
@@ -31,6 +30,23 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     <div className="flex items-center gap-3 mb-4">
       <span className="text-[10px] font-bold tracking-widest text-zinc-600 uppercase whitespace-nowrap">{children}</span>
       <div className="flex-1 h-px bg-white/[0.04]" />
+    </div>
+  );
+}
+
+function DimensionInput({ label, icon: Icon, registration }: { label: string; icon: any; registration: any }) {
+  return (
+    <div className="bg-zinc-900/40 border border-white/[0.05] rounded-2xl p-3 flex flex-col gap-2">
+      <FieldLabel>{label}</FieldLabel>
+      <div className="relative flex items-center">
+        <Icon size={12} className="absolute left-3 text-zinc-600 pointer-events-none" />
+        <input
+          {...registration}
+          type="number"
+          placeholder="0"
+          className="w-full bg-zinc-900/80 border border-white/[0.07] rounded-xl h-10 text-zinc-200 placeholder:text-zinc-600 focus:ring-1 focus:ring-emerald-500/50 focus:border-emerald-500/30 transition-all text-sm font-medium pl-8 pr-3 outline-none appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+      </div>
     </div>
   );
 }
@@ -92,42 +108,50 @@ export function ProductForm({ open, onOpenChange, onSubmit, defaultValues, title
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#0d0d0d] border border-white/[0.06] rounded-3xl p-0 max-w-xl w-full shadow-2xl shadow-black/70 gap-0 outline-none [&>button]:hidden">
+    <div className={`fixed inset-0 z-50 ${open ? "pointer-events-auto" : "pointer-events-none"}`}>
+      <div
+        onClick={() => onOpenChange(false)}
+        className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+          open ? "opacity-100" : "opacity-0"
+        }`}
+      />
 
-        <div className="relative px-8 pt-8 pb-6 border-b border-white/[0.05]">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] via-transparent to-transparent pointer-events-none rounded-t-3xl" />
+      <div
+        className={`absolute right-0 top-0 h-full w-full sm:w-[520px] bg-[#0d0d0d] border-l border-emerald-500/10 shadow-[0_0_40px_rgba(16,185,129,0.15)] transition-transform duration-300 ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="relative px-8 pt-8 pb-6 border-b border-white/[0.05] bg-gradient-to-r from-emerald-500/5 to-transparent">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.05] via-transparent to-transparent pointer-events-none" />
           <div className="absolute -top-16 -right-16 w-52 h-52 bg-emerald-500/[0.03] rounded-full blur-3xl pointer-events-none" />
 
-          <DialogHeader className="space-y-0">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3.5">
-                <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                  <Package size={18} className="text-emerald-400" />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-white tracking-tight leading-tight">{title}</h2>
-                  <p className="text-xs text-zinc-500 mt-0.5">Preencha os dados do produto abaixo</p>
-                </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <Package size={18} className="text-emerald-400" />
               </div>
-              <button
-                type="button"
-                onClick={() => onOpenChange(false)}
-                className="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] flex items-center justify-center text-zinc-500 hover:text-zinc-200 transition-all"
-              >
-                <X size={14} />
-              </button>
+              <div>
+                <h2 className="text-base font-bold text-white tracking-tight leading-tight">{title}</h2>
+                <p className="text-xs text-zinc-500 mt-0.5">Preencha os dados do produto abaixo</p>
+              </div>
             </div>
-          </DialogHeader>
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="w-8 h-8 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] flex items-center justify-center text-zinc-500 hover:text-zinc-200 transition-all"
+            >
+              <X size={14} />
+            </button>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-7 space-y-7">
+        <form onSubmit={handleSubmit(onSubmit)} className="px-8 py-7 space-y-7 overflow-y-auto h-[calc(100%-88px)]">
 
           <div>
             <SectionTitle>Identificação</SectionTitle>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col">
                 <FieldLabel>Nome do Produto *</FieldLabel>
                 <Input
                   {...register("nome_produto", { required: true })}
@@ -139,7 +163,7 @@ export function ProductForm({ open, onOpenChange, onSubmit, defaultValues, title
                 )}
               </div>
 
-              <div>
+              <div className="flex flex-col">
                 <FieldLabel>Categoria *</FieldLabel>
                 <input type="hidden" {...register("categoria_produto", { required: true })} />
                 <div className="relative" ref={catRef}>
@@ -230,61 +254,27 @@ export function ProductForm({ open, onOpenChange, onSubmit, defaultValues, title
           <div>
             <SectionTitle>Dimensões & Peso</SectionTitle>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div>
-                <FieldLabel>Largura (cm)</FieldLabel>
-                <div className="relative">
-                  <Ruler size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
-                  <Input
-                    {...register("largura_centimetros", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
-                    type="number"
-                    step="0.01"
-                    placeholder="0"
-                    className={`${inputClass} pl-8`}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FieldLabel>Altura (cm)</FieldLabel>
-                <div className="relative">
-                  <Ruler size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
-                  <Input
-                    {...register("altura_centimetros", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
-                    type="number"
-                    step="0.01"
-                    placeholder="0"
-                    className={`${inputClass} pl-8`}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FieldLabel>Comprimento (cm)</FieldLabel>
-                <div className="relative">
-                  <Ruler size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
-                  <Input
-                    {...register("comprimento_centimetros", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
-                    type="number"
-                    step="0.01"
-                    placeholder="0"
-                    className={`${inputClass} pl-8`}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <FieldLabel>Peso (g)</FieldLabel>
-                <div className="relative">
-                  <Weight size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 pointer-events-none" />
-                  <Input
-                    {...register("peso_produto_gramas", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
-                    type="number"
-                    placeholder="0"
-                    className={`${inputClass} pl-8`}
-                  />
-                </div>
-              </div>
+            <div className="grid grid-cols-2 gap-4">
+              <DimensionInput
+                label="Largura (cm)"
+                icon={Ruler}
+                registration={register("largura_centimetros", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
+              />
+              <DimensionInput
+                label="Altura (cm)"
+                icon={Ruler}
+                registration={register("altura_centimetros", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
+              />
+              <DimensionInput
+                label="Comprimento (cm)"
+                icon={Ruler}
+                registration={register("comprimento_centimetros", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
+              />
+              <DimensionInput
+                label="Peso (g)"
+                icon={Weight}
+                registration={register("peso_produto_gramas", { setValueAs: (v) => (v === "" ? undefined : Number(v)) })}
+              />
             </div>
           </div>
 
@@ -312,7 +302,7 @@ export function ProductForm({ open, onOpenChange, onSubmit, defaultValues, title
             </button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
