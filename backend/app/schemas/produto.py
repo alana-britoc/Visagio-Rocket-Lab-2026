@@ -46,3 +46,12 @@ class ProdutoResponse(ProdutoBase):
     id_produto: str
 
     model_config = {"from_attributes": True}
+
+class ProdutosPaginados(BaseModel):
+    total: int
+    pagina: int
+    por_pagina: int
+    total_paginas: int
+    items: list[ProdutoResponse]
+
+    model_config = {"from_attributes": True}
