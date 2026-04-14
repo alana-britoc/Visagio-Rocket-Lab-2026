@@ -7,15 +7,8 @@ import {
   atualizarProduto,
   deletarProduto,
 } from "@/api/produtos";
-import type { ProdutoCreate, ProdutoUpdate } from "@/types/produto";
+import type { ProdutoCreate, ProdutoUpdate, ProdutoDetalhe, Produto } from "@/types/produto";
 import { toast } from "sonner";
-import type { Produto } from "@/types/produto";
-
-export type Product = Produto & {
-  id: string;
-  name: string;
-  category: string;
-};
 
 const mapProduto = (p: any) => ({
   ...p,
@@ -23,11 +16,7 @@ const mapProduto = (p: any) => ({
   name: p.nome_produto,
   category: p.categoria_produto,
   description: p.descricao || null,
-  price: p.preco || 0,
-  sku: p.sku || null,
-  image_url: p.image_url || null,
-  stock_quantity: p.estoque || 0,
-  is_active: true,
+  price: p.preco_BRL || 0,
   width: p.largura_centimetros,
   height: p.altura_centimetros,
   depth: p.comprimento_centimetros,
@@ -55,14 +44,14 @@ export function useProductsWithStats(
     },
   });
 
-  const ids = productsQuery.data?.items.map((p: any) => p.id_produto) ?? [];
+  const ids = productsQuery.data?.items.map((p: any) => p.id) ?? [];
 
   const statsQuery = useQuery({
     queryKey: ["products-stats-batch", ids],
     queryFn: async () => {
       const results = await Promise.all(ids.map((id: string) => detalharProduto(id)));
       return Object.fromEntries(
-        results.map((p: any) => [
+        results.map((p: ProdutoDetalhe) => [
           p.id_produto,
           {
             avg_rating: p.media_avaliacoes ?? null,
@@ -121,12 +110,12 @@ export function useProductStats(id: string) {
   return useQuery({
     queryKey: ["product-stats", id],
     queryFn: async () => {
-      const p = await detalharProduto(id);
+      const p: ProdutoDetalhe = await detalharProduto(id);
       return {
-        avg_rating: p.media_avaliacoes,
-        review_count: p.avaliacoes?.length || 0,
-        total_sales: p.total_vendas,
-        total_revenue: p.receita_total,
+        avg_rating: p.media_avaliacoes ?? 0,
+        total_sales: p.total_vendas ?? 0,
+        total_revenue: p.receita_total ?? 0,
+        review_count: p.avaliacoes?.length ?? 0,
       };
     },
     enabled: !!id,
@@ -136,11 +125,12 @@ export function useProductStats(id: string) {
 export function useProductPerformance(id: string) {
   return useQuery({
     queryKey: ["product-performance", id],
-    queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/produtos/${id}/performance`);
-      if (!response.ok) throw new Error("Erro ao buscar performance");
-      return response.json();
-    },
+    queryFn: () =>
+      fetch(`/api/produtos/${id}/performance`)
+        .then(res => {
+          if (!res.ok) throw new Error("Erro ao buscar performance");
+          return res.json();
+        }),
     enabled: !!id,
   });
 }
@@ -149,8 +139,8 @@ export function useProductReviews(id: string) {
   return useQuery({
     queryKey: ["reviews", id],
     queryFn: async () => {
-      const p = await detalharProduto(id);
-      return (p.avaliacoes || []).map((a: any, i: number) => ({
+      const p: ProdutoDetalhe = await detalharProduto(id);
+      return (p.avaliacoes || []).map((a, i) => ({
         id: i,
         rating: a.avaliacao,
         comment: a.comentario,

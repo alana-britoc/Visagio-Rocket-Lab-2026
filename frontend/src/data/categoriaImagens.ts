@@ -1,30 +1,46 @@
-export const categoriaImagens: Record<string, string> = {
-  perfumaria: "https://upload.wikimedia.org/wikipedia/commons/7/79/Kuala_Lumpur_International_Airport%2C_Christian_Dior%2C_Dior_perfume%2C_Malaysia.jpg",
-  automotivo: "https://upload.wikimedia.org/wikipedia/commons/9/9e/2025_Analogue_Automotive_VHPK_2.jpg",
-  cama_mesa_banho: "https://upload.wikimedia.org/wikipedia/commons/e/e6/Carnival_Sensation_towel_snake.JPG",
-  utilidades_domesticas: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Kitchen_tools%2C_2012.jpg",
-  relogios_presentes: "https://upload.wikimedia.org/wikipedia/commons/0/02/Rolex_Day-Date_Lacquered_Stella_Dial.jpg",
-  cool_stuff: "https://upload.wikimedia.org/wikipedia/commons/c/c9/Rubik_cube_%28345056969%29.jpg",
-  consoles_games: "https://upload.wikimedia.org/wikipedia/commons/0/0f/InclusiveGameLab_PS5-Controller_CC-BY-SA_01.jpg",
-  moveis_decoracao: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Furniture_exhibits_in_Masfurniture%2C_Hunsur_%283%29.jpg",
-  beleza_saude: "https://upload.wikimedia.org/wikipedia/commons/5/5d/Skin_Care_Set.jpg",
-  fashion_calcados: "https://upload.wikimedia.org/wikipedia/commons/5/5f/Pair_of_shoes%2C_silver_leather_wedges%2C_Prada%2C_Italy%2C_2005.jpg",
-  informatica_acessorios: "https://upload.wikimedia.org/wikipedia/commons/1/17/Backlit_keyboard_2.jpg",
-  brinquedos: "https://upload.wikimedia.org/wikipedia/commons/a/a8/Plushie_Toys_-_Blue_Magic.jpg",
-  pet_shop: "https://upload.wikimedia.org/wikipedia/commons/f/fe/2026_Warszawa_CH_Arkadia%2C_sklep_zoologiczny%2C_dzia%C5%82_akwarystyczny%2C_1.jpg",
-  esporte_lazer: "https://upload.wikimedia.org/wikipedia/commons/b/b0/Indoor_physical_exercise.jpg",
-  ferramentas_jardim: "https://upload.wikimedia.org/wikipedia/commons/b/b8/Jardineiro_%2819273343536%29.jpg",
-  eletronicos: "https://upload.wikimedia.org/wikipedia/commons/4/40/Cptvdisplay.jpg",
-  eletrodomesticos: "https://upload.wikimedia.org/wikipedia/commons/2/25/Askemo_home_appliances.jpg",
-  bebes: "https://upload.wikimedia.org/wikipedia/commons/7/74/Personalized_red_baby_long_johns_hanging_on_hangar_on_baby_crib_with_stuffed_elephant_and_chick_%2816807049549%29.png",
-  alimentos: "https://upload.wikimedia.org/wikipedia/commons/6/6d/Good_Food_Display_-_NCI_Visuals_Online.jpg",
-  telefonia: "https://upload.wikimedia.org/wikipedia/commons/8/89/Smartphone_display_screen.jpg",
-  livros_interesse_geral: "https://upload.wikimedia.org/wikipedia/commons/c/c2/Paris_75005_Quai_de_Montebello_Bouquinistes_20071014.jpg",
-  pc_gamer: "https://upload.wikimedia.org/wikipedia/commons/7/78/Gaming_computers_%281%29.jpg",
-  papelaria: "https://upload.wikimedia.org/wikipedia/commons/d/de/001_2019_12_03_Bueromaterial.jpg",
-  flores: "https://upload.wikimedia.org/wikipedia/commons/6/67/JP_%E6%97%A5%E6%9C%AC_Japan_%E6%B2%96%E7%B9%A9_OKINAWA_Route_253_%E6%B5%A6%E8%A5%BF_Chome_AEON_Style_Department_Store_flowers_shop_yellow_n_pinkFebruary_2026_N13P_01.jpg",
-  instrumentos_musicais: "https://upload.wikimedia.org/wikipedia/commons/6/60/Cascio_Interstate_Music_SuperStore_Acoustic_Guitar_Cabin.jpeg",
-  artes: "https://upload.wikimedia.org/wikipedia/commons/f/fb/Painting_the_Grand_canyon.jpg",
-  moveis_escritorio: "https://upload.wikimedia.org/wikipedia/commons/a/a0/Wikimedia_Deutschland_Office_2024-03-15_3.jpg",
-  pcs: "https://upload.wikimedia.org/wikipedia/commons/6/63/Laptop-2411303_960_720.jpg",
-}
+export const mapeamentoCategorias: Record<string, { label: string; image: string }> = {
+  "informatica_acessorios": { label: "Informática", image: "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&q=80&w=800" },
+  "pcs": { label: "Computadores", image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&q=80&w=800" },
+  "pc_gamer": { label: "PC Gamer", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&q=80&w=800" },
+  "consoles_games": { label: "Games", image: "https://images.unsplash.com/photo-1486401899868-0e435ed85128?auto=format&fit=crop&q=80&w=800" },
+  "eletronicos": { label: "Eletrônicos", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?auto=format&fit=crop&q=80&w=800" },
+  "telefonia": { label: "Smartphones", image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=800" },
+  "audio": { label: "Áudio", image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&q=80&w=800" },
+  "moveis_decoracao": { label: "Decoração", image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800" },
+  "moveis_sala": { label: "Sala de Estar", image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&q=80&w=800" },
+  "moveis_quarto": { label: "Móveis de Quarto", image: "https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=800" },  "moveis_de_quarto": { label: "Móveis de Quarto", image: "https://images.unsplash.com/photo-1505691938895-1758d7eaa511?auto=format&fit=crop&q=80&w=800" },
+  "moveis_cozinha_jantar_jardim": { label: "Cozinha & Jantar", image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&q=80&w=800" },
+  "cama_mesa_banho": { label: "Cama & Banho", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=800" },
+  "automotivo": { label: "Automotivo", image: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&q=80&w=800" },
+  "cool_stuff": { label: "Cool Stuff", image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&q=80&w=800" },
+  "pet_shop": { label: "Pet Shop", image: "https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&q=80&w=800" },
+  "brinquedos": { label: "Brinquedos", image: "https://images.unsplash.com/photo-1537735319906-aba88362c4b0?auto=format&fit=crop&q=80&w=800" },
+  "beleza_saude": { label: "Beleza & Saúde", image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&q=80&w=800" },
+  "alimentos": { label: "Alimentos", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800" },
+  "default": { label: "Geral", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=800" }
+};
+
+export const getCategoryData = (cat: string) => {
+  if (!cat) return mapeamentoCategorias["default"];
+
+  const normalizar = (s: string) => s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/\s+/g, '_');
+
+  const key = normalizar(cat);
+
+  if (mapeamentoCategorias[key]) {
+    return mapeamentoCategorias[key];
+  }
+
+  const porLabel = Object.values(mapeamentoCategorias).find(
+    (item) => normalizar(item.label) === key
+  );
+
+  return porLabel || mapeamentoCategorias["default"];
+};
+
+export default getCategoryData;
